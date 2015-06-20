@@ -1,0 +1,103 @@
+<html>
+    <meta charset="utf-8">
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.5/p5.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="./statics/js/p5.dom.js"></script>
+    <script src="./statics/bower_components/linear-algebra/dist/linear-algebra.js"></script>
+    <title>笔仙</title> 
+    <script>
+        var in_writing_line = 0,last_x = 0,last_y =0,is_start_point = 0;
+        var r = 0,g = 0,b=0;
+        function setup() {
+            createCanvas(1280, 720);
+            frameRate(60);
+             $('html').css({  
+                    cursor: 'none'  
+            });  
+            text = createP("x");
+            text.position(mouseX,mouseY);
+
+            calib = createButton("calib");
+            clearB = createButton("clear");
+            clearB.mousePressed(clear);
+            calib.mousePressed(startCalib);
+        }
+        var calib_count = 0;
+        var calib_count_x = 0, calib_count_y = 0;
+        var in_calib = 0;
+        function startCalib()
+        {
+            calib.html("finish calib");
+            calib.mousePressed(finishCalib);
+            in_calib = 1;
+        }
+        function finishCalib()
+        {
+            calib.html("calib");
+            calib.mousePressed(startCalib);
+            in_calib = 0;
+        }
+        function calibMouse()
+        {
+            if (! mouseIsPressed)
+            {
+                console.log("finish a line");
+            }
+            
+            if (is_start_point == 1)
+            {
+                console.log("a new line!!!");
+                start_point_x = mouseX;
+                start_point_y = mouseY;
+            }
+            
+            calib_count_x = calib_count_x - start_point_x +mouseX;
+            calib_count_y = calib_count_y - start_point_y +mouseY;
+        }
+        function draw() 
+        {
+            text.position(mouseX,mouseY);
+        }
+        
+        function mouseDragged() {
+            if(in_calib == 1)
+            {
+                calibMouse();
+            }
+            is_start_point = 0;
+            stroke(r,g,b);
+            if (in_writing_line == 1)
+            {
+                line(last_x,last_y,mouseX,mouseY);
+                last_x = mouseX;
+                last_y = mouseY;
+            }
+            return false;
+        }
+
+        function mousePressed()
+        {
+            last_x = mouseX;
+            last_y = mouseY;
+            is_start_point = 0;
+            if (in_writing_line == 0)
+            {
+                is_start_point = 1;
+            }
+            in_writing_line = 1;
+        }
+
+        function mouseReleased()
+        {
+            in_writing_line = 0;
+            if(in_calib == 1)
+            {
+                console.log("try to finish");
+                calibMouse();
+            }
+        }
+    </script>
+    <body>
+    </body>
+</html>

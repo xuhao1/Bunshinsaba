@@ -1,0 +1,3 @@
+[submodule "libs/seshat"]
+	path = libs/seshat
+	url = git@github.com:xuhao1/seshat.git
