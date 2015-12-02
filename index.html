@@ -4,28 +4,55 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/p5.js/0.4.5/p5.js"></script>
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="./statics/js/p5.dom.js"></script>
-    <script src="./statics/bower_components/linear-algebra/dist/linear-algebra.js"></script>
+    <script src="./statics/js/numeric-1.2.6.min.js"></script>
+    <script src="./statics/js/calib.js"></script>
     <title>笔仙</title> 
     <script>
+        dot = numeric.dot;
+        inv = numeric.inv;
+        plus = numeric.add;
+        trans = numeric.transpose;
         var in_writing_line = 0,last_x = 0,last_y =0,is_start_point = 0;
+        mapping_A = [[1,0],[0,1]] ;
+        mapping_B = [[0],[1]];
+        //pos_dis = A * [[mouseX],[mouseY]] + B
         var r = 0,g = 0,b=0;
+        var pX = 0;
+        var pY = 0;
+        function updatePainter()
+        {
+            var mouseXY = [[mouseX],[mouseY]];
+            mouseXY = plus(dot(mapping_A,mouseXY) , mapping_B);
+            pX = mouseXY[0][0];
+            pY = mouseXY[1][0];
+        }
         function setup() {
             createCanvas(1280, 720);
             frameRate(60);
-             $('html').css({  
+            
+            $('html').css({  
                     cursor: 'none'  
-            });  
-            text = createP("x");
+            });
+            
+            text = createP("A");
             text.position(mouseX,mouseY);
 
             calib = createButton("calib");
             clearB = createButton("clear");
+            debug = createButton("debug");
             clearB.mousePressed(clear);
             calib.mousePressed(startCalib);
+            debug.mousePressed(debugF);
+            //startCalib();
         }
         var calib_count = 0;
-        var calib_count_x = 0, calib_count_y = 0;
+        //var calib_count_x = 0, calib_count_y = 0;
         var in_calib = 0;
+        calib_lines =new Array();
+        function debugF()
+        {
+            mapping_A = [[0.8,-0.6],[0.6,0.8]];
+        }
         function startCalib()
         {
             calib.html("finish calib");
@@ -37,30 +64,44 @@
             calib.html("calib");
             calib.mousePressed(startCalib);
             in_calib = 0;
+            calib_mouse_with_lines(calib_lines);
+            calib_lines = new Array();
         }
         function calibMouse()
         {
             if (! mouseIsPressed)
             {
                 console.log("finish a line");
+               // console.log(calib_lines[calib_count-1]);
+                return;
             }
             
             if (is_start_point == 1)
             {
                 console.log("a new line!!!");
-                start_point_x = mouseX;
-                start_point_y = mouseY;
+                calib_lines.push([[mouseX,mouseY]]);
+                calib_count ++;
+                console.log(calib_lines[calib_count -1]);
+
             }
-            
-            calib_count_x = calib_count_x - start_point_x +mouseX;
-            calib_count_y = calib_count_y - start_point_y +mouseY;
+            calib_lines[calib_count-1].push([mouseX,mouseY]);
+         
         }
+        
         function draw() 
         {
-            text.position(mouseX,mouseY);
+            updatePainter();
+            text.position(pX,pY);
+        }
+        
+        function mouseMoved()
+        {
+            updatePainter();
+            text.position(pX,pY);
         }
         
         function mouseDragged() {
+            updatePainter();
             if(in_calib == 1)
             {
                 calibMouse();
@@ -69,17 +110,18 @@
             stroke(r,g,b);
             if (in_writing_line == 1)
             {
-                line(last_x,last_y,mouseX,mouseY);
-                last_x = mouseX;
-                last_y = mouseY;
+                line(last_x,last_y,pX,pY);
+                last_x = pX;
+                last_y = pY;
             }
             return false;
         }
 
         function mousePressed()
         {
-            last_x = mouseX;
-            last_y = mouseY;
+            updatePainter();
+            last_x = pX;
+            last_y = pY;
             is_start_point = 0;
             if (in_writing_line == 0)
             {
@@ -100,4 +142,7 @@
     </script>
     <body>
     </body>
+    <script>
+      
+    </script>
 </html>
